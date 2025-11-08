@@ -1,40 +1,45 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 import QUESTIONS from '../questions.js';
 import quizCompleteImg from '../assets/quiz-complete.png';
+import Question from './Question.jsx';
+import Summary from './Summary.jsx';
 
 export default function Quiz() {
+  // 存储整个quiz用户所有选择的回答
   const [userAnswers, setUserAnswers] = useState([]);
+
   const activeQuestionIndex = userAnswers.length;
   const quizIsComplete = userAnswers.length === QUESTIONS.length;
-  function handleAnswerSelection(answer) {
-    setUserAnswers((prevUserAnswers) => [...prevUserAnswers, answer]);
-  }
 
+  // 使用useCallback避免不必要的重新渲染
+  const handleSelectAnswer = useCallback(function handleAnswerSelection(selectedAnswer) {
+    setUserAnswers((prevUserAnswers) => [...prevUserAnswers, selectedAnswer]);
+  }, []);
+
+  // 倒计时结束未能选择则跳到下一个问题，并且当前问题的用户回答设定为null
+  const handleSkipAnswer = useCallback(
+    () => handleSelectAnswer(null),
+    [handleSelectAnswer]
+  );
+
+  // quiz结束的画面
   if (quizIsComplete) {
     return (
-      <div id="summary">
-        <img src={quizCompleteImg} alt="Quiz Complete" />
-        <h2>Quiz Complete!</h2>
-      </div>
+      <Summary userAnswers={userAnswers} />
     );
   }
 
-  const shuffleAnswers = [...QUESTIONS[activeQuestionIndex].answers].sort(() => Math.random() - 0.5);
-
+  // key用于react动态重新渲染Question组件，questionIndex作为prop传给Question组件使用
+  // 由于React不让直接使用react内定的key属性作为prop传递，所以这里用questionIndex替代
   return (
     <div id="quiz">
-      <div id="question">
-        <p>Currently active Question</p>
-        <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-        <ul id="answers">
-          {shuffleAnswers.map((answer) => (
-            <li key={answer} className="answer">
-              <button onClick={() => handleAnswerSelection(answer)}>{answer}</button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Question
+        key={activeQuestionIndex}
+        questionIndex={activeQuestionIndex}
+        onSelectAnswer={handleSelectAnswer}
+        onSkipAnswer={handleSkipAnswer}
+      />
     </div>
   );
 }
