@@ -1,0 +1,33 @@
+body {
+  font-family: sans-serif;
+  background: #f2f2f2;
+  padding: 40px;
+}
+
+.app {
+  width: 420px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.input-box {
+  display: flex;
+  gap: 10px;
+}
+
+.todo-item {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.done {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.filters button {
+  margin-right: 10px;
+}
